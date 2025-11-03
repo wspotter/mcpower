@@ -7,9 +7,33 @@ A Model Context Protocol (MCP) server that provides semantic search capabilities
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-86%20passing-brightgreen)](tests/)
 
-## 🚀 Features
+## 🚀 Quick Start
+
+### Launch the Web Console (Easiest Way!)
+
+**Linux/Mac:**
+```bash
+./launch.sh
+```
+
+**Windows:**
+```
+Double-click launch.bat
+```
+
+The web console will open automatically at http://127.0.0.1:4173
+
+### What You Get
+
+- 📊 **Visual Dashboard** - See all your knowledge bases
+- 📁 **Drag & Drop** - Create datasets by dropping folders
+- 🔍 **Browse Files** - Interactive directory picker
+- 🗑️ **Easy Management** - Delete or update datasets with one click
+
+## ✨ Features
 
 - **Semantic Search**: Search knowledge datasets using natural language queries
+- **Interactive Web Console**: Manage datasets with drag-and-drop interface
 - **Multiple Datasets**: Manage and search across multiple knowledge bases
 - **MCP Compatible**: Works with any MCP client (VS Code, Cherry Studio, etc.)
 - **Fast & Reliable**: FAISS-powered vector search with <500ms p95 latency
@@ -19,6 +43,7 @@ A Model Context Protocol (MCP) server that provides semantic search capabilities
 ## 📋 Table of Contents
 
 - [Quick Start](#quick-start)
+- [Web Console](#web-console)
 - [Architecture](#architecture)
 - [Installation](#installation)
 - [Configuration](#configuration)
@@ -28,9 +53,30 @@ A Model Context Protocol (MCP) server that provides semantic search capabilities
 - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 
-## ⚡ Quick Start
+## 🌐 Web Console
 
-See [Quick Start Guide](specs/001-mcp-server-core/quickstart.md) for detailed setup instructions.
+The web console provides an easy-to-use interface for managing your knowledge bases.
+
+**Start it:**
+```bash
+./launch.sh          # Linux/Mac
+launch.bat           # Windows
+npm run web          # Manual start
+```
+
+**Features:**
+- View all datasets with statistics
+- Create new datasets by:
+  - 📁 Clicking the Browse button
+  - 🖱️ Dragging folders into the input
+  - ⌨️ Typing the path manually
+- Delete datasets
+- Monitor indexing progress
+- See chunk counts and model info
+
+## ⚡ Quick Start (Manual)
+
+See [QUICKSTART.md](QUICKSTART.md) for detailed instructions.
 
 ### 1. Install Dependencies
 
@@ -38,9 +84,9 @@ See [Quick Start Guide](specs/001-mcp-server-core/quickstart.md) for detailed se
 # Install Node.js dependencies
 npm install
 
-# Install Python dependencies
-cd python
-pip install -r requirements.txt
+# Install Python dependencies in virtual environment
+python3 -m venv .venv
+.venv/bin/pip install typer faiss-cpu sentence-transformers
 ```
 
 ### 2. Try the Sample Dataset

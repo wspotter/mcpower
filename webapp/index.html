@@ -43,7 +43,11 @@
         <form id="create-form">
           <label>
             Source Path
-            <input type="text" name="sourcePath" placeholder="/absolute/path/to/documents" required />
+            <div class="file-input-group">
+              <input type="text" id="source-path" name="sourcePath" placeholder="Drop folder here or enter path: /absolute/path/to/documents" required />
+              <button type="button" id="browse-btn" class="secondary" title="Browse for directory">📁 Browse</button>
+            </div>
+            <small>Enter absolute path, drag and drop a folder, or click Browse to select</small>
           </label>
           <label>
             Dataset ID

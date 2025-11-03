@@ -16,18 +16,39 @@ You've successfully created a **vector search knowledge base** from the Cherry S
 - 📄 **5 sample documents** for testing
 - 🎯 Demonstrates basic functionality
 
+## 🚀 Launch MCPower (Easy Way)
+
+### Linux/Mac
+Just run the launcher:
+```bash
+./launch.sh
+```
+
+Or double-click `launch.sh` in your file manager!
+
+### Windows
+Double-click `launch.bat`
+
+### What the launcher does:
+- ✅ Checks your environment setup
+- ✅ Starts the web console automatically
+- ✅ Opens your browser to http://127.0.0.1:4173
+- ✅ Shows helpful startup messages
+
 ## How to Use
 
 ### 1. Web Console (Dataset Management)
 
-Start the web console:
+**Easy way:** Run the launcher (see above)
+
+**Manual way:**
 ```bash
 npm run web
 ```
 
 Then open http://127.0.0.1:4173 in your browser to:
 - View all datasets
-- Create new datasets from document directories
+- Create new datasets from document directories (drag & drop supported!)
 - Delete datasets
 - See dataset statistics
 

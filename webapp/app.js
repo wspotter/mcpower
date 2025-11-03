@@ -4,6 +4,99 @@ const emptyState = document.querySelector('#datasets-empty');
 const refreshButton = document.querySelector('#refresh-btn');
 const createForm = document.querySelector('#create-form');
 const formMessage = document.querySelector('#form-message');
+const sourcePathInput = document.querySelector('#source-path');
+const browseButton = document.querySelector('#browse-btn');
+
+// Drag and drop support for directories
+sourcePathInput.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  sourcePathInput.style.borderColor = '#2f6fff';
+  sourcePathInput.style.background = '#f0f9ff';
+});
+
+sourcePathInput.addEventListener('dragleave', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  sourcePathInput.style.borderColor = '';
+  sourcePathInput.style.background = '';
+});
+
+sourcePathInput.addEventListener('drop', async (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  sourcePathInput.style.borderColor = '';
+  sourcePathInput.style.background = '';
+
+  const items = Array.from(e.dataTransfer.items);
+  
+  // Try to get directory path
+  for (const item of items) {
+    if (item.kind === 'file') {
+      const entry = item.webkitGetAsEntry?.() || item.getAsEntry?.();
+      
+      if (entry?.isDirectory) {
+        // Try to get full path (works in Electron/VS Code)
+        if (entry.fullPath && entry.fullPath.startsWith('/')) {
+          sourcePathInput.value = entry.fullPath;
+          showMessage('Directory path set: ' + entry.fullPath, false);
+          return;
+        }
+        
+        // Fallback: show directory name
+        showMessage('Dropped: ' + entry.name + '. Please enter the full absolute path.', false);
+        sourcePathInput.focus();
+        return;
+      }
+      
+      // If it's a file, try to get its directory
+      const file = item.getAsFile();
+      if (file?.path) {
+        // Extract directory from file path (works in Electron)
+        const dirPath = file.path.substring(0, file.path.lastIndexOf('/'));
+        sourcePathInput.value = dirPath;
+        showMessage('Directory path set: ' + dirPath, false);
+        return;
+      }
+    }
+  }
+  
+  showMessage('Please drop a folder or enter the path manually.', true);
+});
+
+// File System Access API for directory selection
+async function selectDirectory() {
+  try {
+    // Check if the File System Access API is available
+    if (!('showDirectoryPicker' in window)) {
+      // Fallback: show instructions
+      showMessage('Your browser does not support directory selection. Please enter the path manually or drag and drop a folder.', true);
+      return;
+    }
+
+    const dirHandle = await window.showDirectoryPicker({
+      mode: 'read'
+    });
+
+    // Get the full path if available (Electron/VS Code context)
+    if (dirHandle.getPath) {
+      const path = await dirHandle.getPath();
+      sourcePathInput.value = path;
+      showMessage('Directory selected: ' + path, false);
+    } else {
+      // Fallback: use the name (won't work for absolute paths but shows intent)
+      showMessage('Selected: ' + dirHandle.name + '. Please enter the full absolute path manually.', false);
+      sourcePathInput.focus();
+    }
+  } catch (error) {
+    if (error.name !== 'AbortError') {
+      console.error('Directory selection failed:', error);
+      showMessage('Directory selection failed. Please enter the path manually or drag and drop a folder.', true);
+    }
+  }
+}
+
+browseButton.addEventListener('click', selectDirectory);
 
 async function fetchDatasets() {
   try {

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MCPower
+Comment=Knowledge Base Management Console
+Exec=/home/stacy/mcpower/launch.sh
+Icon=folder-database
+Terminal=true
+Categories=Development;Database;
+Keywords=knowledge;search;dataset;mcp;
+StartupNotify=true

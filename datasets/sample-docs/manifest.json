@@ -1,0 +1,8 @@
+{
+  "id": "sample-docs",
+  "name": "Sample Knowledge Base",
+  "description": "A sample knowledge base demonstrating the MCP Power server capabilities with common questions and answers",
+  "index": "index",
+  "metadata": "metadata.json",
+  "defaultTopK": 5
+}

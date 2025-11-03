@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "knowledge.search",
+  "description": "Search a knowledge dataset for relevant documents using semantic similarity",
+  "type": "object",
+  "properties": {
+    "dataset": {
+      "type": "string",
+      "description": "Dataset ID to search (must be a registered dataset)",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9-]+$",
+      "examples": ["cherry-docs", "openwebui-docs", "tts-docs"]
+    },
+    "query": {
+      "type": "string",
+      "description": "Natural language search query",
+      "minLength": 1,
+      "maxLength": 1024,
+      "examples": [
+        "How do I configure MCP server settings?",
+        "What are the authentication options?",
+        "Troubleshooting connection errors"
+      ]
+    },
+    "topK": {
+      "type": "integer",
+      "description": "Number of results to return (defaults to dataset's defaultTopK)",
+      "minimum": 1,
+      "maximum": 100,
+      "default": 5
+    }
+  },
+  "required": ["dataset", "query"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "dataset": "cherry-docs",
+      "query": "How do I install Cherry Studio?",
+      "topK": 5
+    },
+    {
+      "dataset": "openwebui-docs",
+      "query": "What are the system requirements?"
+    }
+  ],
+  "response": {
+    "type": "object",
+    "properties": {
+      "results": {
+        "type": "array",
+        "description": "Array of search results ordered by relevance (highest score first)",
+        "items": {
+          "type": "object",
+          "properties": {
+            "score": {
+              "type": "number",
+              "description": "Relevance score from 0.0 (not relevant) to 1.0 (highly relevant)",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "title": {
+              "type": "string",
+              "description": "Document title or heading"
+            },
+            "path": {
+              "type": "string",
+              "description": "Document path or URL for citation"
+            },
+            "snippet": {
+              "type": "string",
+              "description": "Text excerpt from the matched document"
+            }
+          },
+          "required": ["score", "title", "path", "snippet"]
+        }
+      },
+      "metadata": {
+        "type": "object",
+        "properties": {
+          "dataset": {
+            "type": "string",
+            "description": "Dataset ID that was searched"
+          },
+          "query": {
+            "type": "string",
+            "description": "Original query text"
+          },
+          "resultCount": {
+            "type": "integer",
+            "description": "Number of results returned"
+          },
+          "durationMs": {
+            "type": "number",
+            "description": "Search duration in milliseconds"
+          }
+        }
+      }
+    },
+    "required": ["results"]
+  },
+  "errors": [
+    {
+      "code": "DATASET_NOT_FOUND",
+      "message": "Dataset '{dataset}' not found. Available datasets: {availableIds}",
+      "httpStatus": 404
+    },
+    {
+      "code": "INVALID_QUERY",
+      "message": "Query must be non-empty and less than 1024 characters",
+      "httpStatus": 400
+    },
+    {
+      "code": "INVALID_TOP_K",
+      "message": "topK must be an integer between 1 and 100",
+      "httpStatus": 400
+    },
+    {
+      "code": "PYTHON_BRIDGE_ERROR",
+      "message": "Failed to execute search: {error}",
+      "httpStatus": 500
+    },
+    {
+      "code": "SEARCH_TIMEOUT",
+      "message": "Search exceeded maximum timeout of 10 seconds",
+      "httpStatus": 504
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "mcpower": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/mcpower/dist/cli.js",
+        "--datasets",
+        "/absolute/path/to/mcpower/datasets",
+        "--log-level",
+        "info"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}

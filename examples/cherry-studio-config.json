@@ -1,0 +1,62 @@
+{
+  "name": "MCP Power Knowledge Search",
+  "version": "0.1.0",
+  "description": "Semantic search over knowledge datasets using FAISS",
+  "type": "mcp",
+  "runtime": "node",
+  "command": {
+    "executable": "node",
+    "args": [
+      "/absolute/path/to/mcpower/dist/cli.js",
+      "--datasets",
+      "/absolute/path/to/mcpower/datasets",
+      "--log-level",
+      "info"
+    ],
+    "env": {
+      "NODE_ENV": "production"
+    }
+  },
+  "tools": [
+    {
+      "name": "knowledge.search",
+      "description": "Search a knowledge dataset using semantic similarity",
+      "parameters": {
+        "dataset": {
+          "type": "string",
+          "description": "Dataset ID to search",
+          "required": true
+        },
+        "query": {
+          "type": "string",
+          "description": "Natural language search query",
+          "required": true
+        },
+        "topK": {
+          "type": "number",
+          "description": "Number of results to return",
+          "required": false,
+          "default": 5
+        }
+      }
+    },
+    {
+      "name": "knowledge.listDatasets",
+      "description": "List all available knowledge datasets",
+      "parameters": {}
+    }
+  ],
+  "settings": {
+    "datasetsPath": {
+      "type": "string",
+      "description": "Path to datasets directory",
+      "default": "./datasets"
+    },
+    "logLevel": {
+      "type": "string",
+      "enum": ["debug", "info", "warn", "error"],
+      "description": "Logging level",
+      "default": "info"
+    }
+  }
+}

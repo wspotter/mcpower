@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "knowledge.listDatasets",
+  "description": "List all registered knowledge datasets available for searching",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false,
+  "notes": "This tool accepts no input parameters",
+  "response": {
+    "type": "object",
+    "properties": {
+      "datasets": {
+        "type": "array",
+        "description": "Array of all successfully loaded datasets",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique dataset identifier",
+              "pattern": "^[a-z0-9-]+$"
+            },
+            "name": {
+              "type": "string",
+              "description": "Human-readable dataset name"
+            },
+            "description": {
+              "type": "string",
+              "description": "Brief description of dataset contents"
+            },
+            "defaultTopK": {
+              "type": "integer",
+              "description": "Default number of results for searches",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "status": {
+              "type": "string",
+              "enum": ["ready", "error"],
+              "description": "Dataset availability status"
+            }
+          },
+          "required": ["id", "name", "description", "defaultTopK", "status"]
+        }
+      },
+      "metadata": {
+        "type": "object",
+        "properties": {
+          "totalDatasets": {
+            "type": "integer",
+            "description": "Total number of datasets registered"
+          },
+          "readyDatasets": {
+            "type": "integer",
+            "description": "Number of datasets ready for searching"
+          },
+          "errorDatasets": {
+            "type": "integer",
+            "description": "Number of datasets that failed to load"
+          }
+        }
+      }
+    },
+    "required": ["datasets"]
+  },
+  "examples": [
+    {
+      "request": {},
+      "response": {
+        "datasets": [
+          {
+            "id": "cherry-docs",
+            "name": "Cherry Studio Documentation",
+            "description": "Embeddings built from the Cherry Studio docs repository",
+            "defaultTopK": 5,
+            "status": "ready"
+          },
+          {
+            "id": "openwebui-docs",
+            "name": "Open WebUI Documentation",
+            "description": "Official Open WebUI documentation and guides",
+            "defaultTopK": 10,
+            "status": "ready"
+          }
+        ],
+        "metadata": {
+          "totalDatasets": 2,
+          "readyDatasets": 2,
+          "errorDatasets": 0
+        }
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": "NO_DATASETS_LOADED",
+      "message": "No datasets are currently registered. Check server logs for loading errors.",
+      "httpStatus": 200,
+      "note": "This is not an error condition - returns empty array"
+    },
+    {
+      "code": "REGISTRY_ERROR",
+      "message": "Failed to access dataset registry: {error}",
+      "httpStatus": 500
+    }
+  ]
+}

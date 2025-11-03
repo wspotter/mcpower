@@ -32,11 +32,11 @@ export class PythonBridge {
   /**
    * Creates a new PythonBridge instance
    * 
-   * @param pythonPath - Path to Python executable (default: 'python3')
+   * @param pythonPath - Path to Python executable (default: MCPOWER_PYTHON env var or 'python3')
    * @param timeout - Command timeout in milliseconds (default: 10000)
    */
-  constructor(pythonPath: string = 'python3', timeout: number = 10000) {
-    this.pythonPath = pythonPath;
+  constructor(pythonPath?: string, timeout: number = 10000) {
+    this.pythonPath = pythonPath || process.env.MCPOWER_PYTHON || 'python3';
     this.bridgeScriptPath = resolve('./python/bridge.py');
     this.timeout = timeout;
   }

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCPower Console</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>MCPower Dataset Console</h1>
+      <p>Manage knowledge datasets, run indexing jobs, and monitor status.</p>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Datasets</h2>
+          <button id="refresh-btn" class="secondary">Refresh</button>
+        </div>
+        <div id="datasets-empty" class="empty-state hidden">
+          <p>No datasets found. Create one below to get started.</p>
+        </div>
+        <table id="datasets-table" class="hidden">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Docs</th>
+              <th>Chunks</th>
+              <th>Model</th>
+              <th>Updated</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h2>Create Dataset</h2>
+        <form id="create-form">
+          <label>
+            Source Path
+            <input type="text" name="sourcePath" placeholder="/absolute/path/to/documents" required />
+          </label>
+          <label>
+            Dataset ID
+            <input type="text" name="datasetId" placeholder="docs-knowledge" pattern="[a-z0-9-]+" required />
+            <small>Lowercase letters, numbers, and hyphens only.</small>
+          </label>
+          <label>
+            Name
+            <input type="text" name="name" placeholder="My Documents" required />
+          </label>
+          <label>
+            Description
+            <textarea name="description" rows="3" placeholder="Optional description"></textarea>
+          </label>
+          <div class="form-row">
+            <label>
+              Model
+              <input type="text" name="model" placeholder="all-MiniLM-L6-v2 (default)" />
+            </label>
+            <label>
+              Chunk Size
+              <input type="number" name="chunkSize" min="128" max="2048" step="32" placeholder="512" />
+            </label>
+            <label>
+              Chunk Overlap
+              <input type="number" name="chunkOverlap" min="0" max="512" step="16" placeholder="64" />
+            </label>
+          </div>
+          <button type="submit">Create Dataset</button>
+        </form>
+        <div id="form-message" class="message hidden"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Running locally on MCPower Web Console.</p>
+    </footer>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

@@ -1,5 +1,5 @@
 import { readdir, readFile, access, stat } from 'fs/promises';
-import { join, resolve } from 'path';
+import { join, resolve, isAbsolute, dirname } from 'path';
 import { Dataset, DatasetManifestSchema, DatasetError, DatasetWithStatus } from '../types/dataset.js';
 import { logger } from '../logger.js';
 import { pythonBridge } from '../bridge/pythonBridge.js';
@@ -111,11 +111,19 @@ export class DatasetRegistry {
       const dataset = DatasetManifestSchema.parse(manifestData);
       datasetId = dataset.id;
 
+      const manifestDir = dirname(resolve(manifestPath));
+      const resolvePath = (pathValue: string) => {
+        if (isAbsolute(pathValue)) {
+          return resolve(pathValue);
+        }
+        return resolve(join(manifestDir, pathValue));
+      };
+
       // Resolve paths relative to project root
       const resolvedDataset: Dataset = {
         ...dataset,
-        index: resolve(dataset.index),
-        metadata: resolve(dataset.metadata)
+        index: resolvePath(dataset.index),
+        metadata: resolvePath(dataset.metadata)
       };
 
       // Verify index directory exists

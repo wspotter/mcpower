@@ -71,6 +71,10 @@ export class PythonBridge {
         '--index', request.indexPath
       ];
 
+      if (request.metadataPath) {
+        args.push('--metadata', request.metadataPath);
+      }
+
       if (request.query) {
         args.push('--query', request.query);
       }

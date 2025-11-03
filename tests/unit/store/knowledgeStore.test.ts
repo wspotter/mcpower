@@ -110,6 +110,7 @@ describe('KnowledgeStore', () => {
       expect(pythonBridgeModule.pythonBridge.search).toHaveBeenCalledWith({
         command: 'search',
         indexPath: '/fake/path/to/index',
+        metadataPath: '/fake/path/to/metadata.json',
         query: 'test query',
         topK: 7
       });

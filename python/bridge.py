@@ -7,17 +7,51 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import List, Dict, Any
-
+from typing import Any, Dict, List
 import typer
-import numpy as np
 
 app = typer.Typer(help="Python bridge for MCP knowledge search operations")
+
+DEFAULT_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
+
+def _require_faiss():
+    try:
+        import faiss  # type: ignore
+    except ImportError as exc:  # pragma: no cover - runtime dependency check
+        raise RuntimeError('faiss-cpu is not installed') from exc
+    return faiss
+
+
+def _load_documents(metadata_path: Path) -> Dict[str, Any]:
+    content = metadata_path.read_text(encoding='utf-8')
+    data = json.loads(content)
+    if isinstance(data, list):
+        return {
+            'model': DEFAULT_MODEL,
+            'documents': data
+        }
+    if not isinstance(data, dict):
+        raise ValueError('Metadata file must contain an object or array of documents')
+    if 'documents' not in data or not isinstance(data['documents'], list):
+        raise ValueError('Metadata file missing "documents" array')
+    return data
+
+
+def _resolve_index_file(index_path: Path) -> Path:
+    if index_path.is_file():
+        return index_path
+
+    candidates = sorted(list(index_path.glob('*.index')) + list(index_path.glob('*.faiss')))
+    if not candidates:
+        raise FileNotFoundError(f"No FAISS index files found in {index_path}")
+    return candidates[0]
 
 
 @app.command()
 def search(
     index: str = typer.Option(..., help="Path to FAISS index directory"),
+    metadata: str = typer.Option(..., help="Path to metadata JSON file"),
     query: str = typer.Option(..., help="Search query text"),
     k: int = typer.Option(5, help="Number of results to return")
 ):
@@ -28,51 +62,59 @@ def search(
     start_time = time.time()
     
     try:
-        # TODO: Implement actual FAISS search
-        # For Phase 3 MVP, we'll implement with actual FAISS if available
-        # Otherwise return mock data for testing
-        
-        try:
-            import faiss
-            from sentence_transformers import SentenceTransformer
-            
-            # Try to load FAISS index
-            index_path = Path(index)
-            if not index_path.exists():
-                raise FileNotFoundError(f"Index directory not found: {index}")
-            
-            # For now, return structured mock data
-            # Full FAISS implementation would go here
-            results = {
-                "results": [
-                    {
-                        "score": 0.89,
-                        "title": f"Document about {query[:50]}",
-                        "path": "docs/sample.md",
-                        "snippet": f"This document contains information about: {query}"
-                    }
-                ],
-                "duration_ms": int((time.time() - start_time) * 1000),
-                "dataset_size": 0
-            }
-        except ImportError:
-            # FAISS not installed - return mock data for testing
-            results = {
-                "results": [
-                    {
-                        "score": 0.85,
-                        "title": "Sample Result (FAISS not installed)",
-                        "path": "docs/mock.md",
-                        "snippet": f"Mock result for query: {query[:100]}"
-                    }
-                ],
-                "duration_ms": int((time.time() - start_time) * 1000),
-                "dataset_size": 0
-            }
-        
-        print(json.dumps(results))
+        faiss = _require_faiss()
+        from sentence_transformers import SentenceTransformer
+
+        index_path = Path(index)
+        metadata_path = Path(metadata)
+
+        if not index_path.exists():
+            raise FileNotFoundError(f"Index directory not found: {index}")
+        if not metadata_path.exists():
+            raise FileNotFoundError(f"Metadata file not found: {metadata}")
+
+        documents_payload = _load_documents(metadata_path)
+        documents = documents_payload['documents']
+        model_name = documents_payload.get('model', DEFAULT_MODEL)
+
+        index_file = _resolve_index_file(index_path)
+        faiss_index = faiss.read_index(str(index_file))
+
+        if faiss_index.ntotal == 0:
+            raise RuntimeError('FAISS index contains no vectors')
+
+        model = SentenceTransformer(model_name)
+        query_embedding = model.encode([query], convert_to_numpy=True)
+        query_vec = query_embedding.astype('float32')
+        faiss.normalize_L2(query_vec)
+
+        top_k = min(max(k, 1), faiss_index.ntotal)
+        scores, indices = faiss_index.search(query_vec, top_k)
+
+        results: List[Dict[str, Any]] = []
+        for score, idx in zip(scores[0], indices[0]):
+            if idx < 0 or idx >= len(documents):
+                continue
+            doc = documents[idx]
+            title = doc.get('title') or doc.get('path') or f'Document {idx}'
+            snippet = doc.get('snippet') or doc.get('content', '')[:200]
+            results.append({
+                "id": doc.get('id', str(idx)),
+                "score": float(score),
+                "title": title,
+                "path": doc.get('path', ''),
+                "snippet": snippet
+            })
+
+        payload = {
+            "results": results,
+            "duration_ms": int((time.time() - start_time) * 1000),
+            "dataset_size": int(faiss_index.ntotal)
+        }
+
+        print(json.dumps(payload))
         sys.exit(0)
-        
+
     except Exception as e:
         error_result = {
             "error": str(e),

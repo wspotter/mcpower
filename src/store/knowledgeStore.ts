@@ -55,6 +55,7 @@ export class KnowledgeStore {
     const request: PythonBridgeRequest = {
       command: 'search',
       indexPath: this.dataset.index,
+      metadataPath: this.dataset.metadata,
       query,
       topK: k
     };

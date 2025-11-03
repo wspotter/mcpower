@@ -22,6 +22,7 @@ export type SearchQuery = z.infer<typeof SearchQuerySchema>;
 export interface PythonBridgeRequest {
   command: 'search' | 'validate-index' | 'health-check';
   indexPath: string;
+  metadataPath?: string;
   query?: string;
   topK?: number;
 }
